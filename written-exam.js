@@ -91,6 +91,7 @@ let student = new Student('a');
 let person = new Person('b');
 console.log(student.common === person.common) // true
 
+// 链表 start ===============================================================
 /**
  * 反转单链表  只有next，没有prev
  * 输入 1 -> 2 -> 3 -> null
@@ -117,6 +118,25 @@ var reverseList = function(head) {
     return tHead.next;
 };
 
+/**
+ * 将两个升序链表合并为一个新的升序链表并返回。新链表是通过拼接给定的两个链表的所有节点组成
+ * 输入：1->2->4, 1->3->4
+ * 输出：1->1->2->3->4->4
+ */
+var mergeTwoLists = function(l1, l2) {
+    if(l1 === null) return l2;
+    if(l2 === null) return l1;
+    // 递归 如果 l1 小于 l2 ,则下一个节点指向 下一个节点与l2比较后的结果
+    if(l1.val < l2.val){
+        l1.next = mergeTwoLists(l1.next, l2);
+        return l1;
+    }else{
+        l2.next = mergeTwoLists(l1, l2.next);
+        return l2;
+    }
+}
+// 链表 end =========================================================================
+
 // 求数组中任意两元素的最大差值 （买卖股票的最佳时机）
 var maxProfit = function(prices) {
     let max = 0;
@@ -129,4 +149,52 @@ var maxProfit = function(prices) {
         max = Math.max(prices[i]-currMin, max)
     }
     return max
+}
+
+// 最大子序和
+/**
+ * 给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和
+ * 输入: [-2,1,-3,4,-1,2,1,-5,4],
+ * 输出: 6
+ * 解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+ */
+var maxSubArray = function(nums) {
+    let maxsub = nums[0], sum = 0;
+    for(let num of nums) {
+        // 如果相加大于当前数，说明sum对结果有益，可以加上num
+        if(sum + num > num) {
+            sum += num
+        } else { // 否则，舍弃sum，把sum设为当前num
+            sum = num
+        }
+        // 每次循环都比对得出最大值
+        maxsub = Math.max(maxsub, sum)
+    }
+    return maxsub
+};
+
+/**
+ * 给定一个二叉树和一个目标和，判断该树中是否存在根节点到叶子节点的路径，这条路径上所有节点值相加等于目标和
+ */
+function TreeNode(val) {
+    this.val = val;
+    this.left = this.right = null;
+}
+/**
+ * @param {TreeNode} root
+ * @param {number} sum
+ * @return {boolean}
+ */
+var hasPathSum = function(root, sum) {
+    if(root == null) {
+        return false
+    }
+    // root 为 叶子节点，判断是否相等
+    if(root.left == null && root.right == null) {
+        return root.val === sum
+    }
+    // 非叶子节点，继续往下寻找，同时sum动态减去当前节点值
+    sum = sum - root.val;
+    // 左右两条路径，有一条满足即可
+    return hasPathSum(root.left, sum) || hasPathSum(root.right, sum)
 };
