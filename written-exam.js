@@ -198,3 +198,61 @@ var hasPathSum = function(root, sum) {
     // 左右两条路径，有一条满足即可
     return hasPathSum(root.left, sum) || hasPathSum(root.right, sum)
 };
+
+/**
+ * 给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串，判断字符串是否有效。
+ * 有效字符串需满足：
+   左括号必须用相同类型的右括号闭合。
+   左括号必须以正确的顺序闭合。
+ * 注意空字符串可被认为是有效字符串。
+*/
+var isValid = function(s) {
+    if(s === '') return true
+    // 如果为奇数长度，返回false
+    if(!s.length%2) return false
+    let map = new Map;
+    map.set('(',')');
+    map.set('[',']');
+    map.set('{','}');
+    // 存储左括号
+    let arr = [];
+    for(let letter of s) {
+        if(map.has(letter)) {
+            arr.push(letter)
+        } else {
+            // 如果为右括号，判断是否与arr最后一位匹配
+            if(letter !== map.get(arr.pop())) {
+                return false
+            }
+        }
+    }
+    // 防止全部为左括号
+    return !arr.length
+};
+
+/**
+ * 爬楼梯  需要 n 阶你才能到达楼顶  每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶
+ * 可以转化为 斐波那契，求斐波那契 n 的值
+ */
+// 迭代
+var climbStairs = function(n) {
+    let a=1,
+		b=1,
+		res;
+	if(n<=1){
+		res = 1
+	}
+	for(let i=2;i<=n;i++){
+		res = a + b
+		a = b
+		b = res
+	}
+	return res
+};
+// 递归 （执行时间会超时）
+var climbStairs = function(n) {
+	if(n<=1){
+		return 1
+	}
+	return climbStairs(n-1) + climbStairs(n-2)
+};
