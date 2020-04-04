@@ -210,7 +210,7 @@ var isValid = function(s) {
     if(s === '') return true
     // 如果为奇数长度，返回false
     if(!s.length%2) return false
-    let map = new Map;
+    let map = new Map();
     map.set('(',')');
     map.set('[',']');
     map.set('{','}');
@@ -256,3 +256,67 @@ var climbStairs = function(n) {
 	}
 	return climbStairs(n-1) + climbStairs(n-2)
 };
+
+// 防抖
+function debonuce(fn, delay) {
+    let timer = null;
+    return function() {
+        clearTimeout(timer)
+        timer = setTimeOut(fn, delay)
+    }
+}
+// 节流
+function throttle(fn, delay){
+    // 标志位
+    let valid = true;
+    return function() {
+        if(!valid) {
+            return false 
+        }
+        valid = false
+        setTimeout(() => {
+            fn()
+            valid = true;
+        }, delay)
+    }
+}
+function consoleFunc() {
+    console.log('console sth')
+}
+window.onscroll = debonuce(consoleFunc, 1000)
+window.onscroll = throttle(consoleFunc, 1000)
+
+// 找到数组中三个最大数并相乘
+function maxThree(arr) {
+    if(arr.length <3) return false
+    if(arr.length === 3) {
+        return arr[0]*arr[1]*arr[2]
+    }
+    let len = arr.length;
+    let min;
+    // 升序排序
+    for(let i=0; i<len; i++) {
+        for(let j=0; j<len; j++) {
+            if(arr[i] < arr[j]) {
+                min = arr[i]; 
+                arr[i]= arr[j];
+                arr[j]= min;
+            }
+        }
+    }
+    return arr[len-1]*arr[len-2]*arr[len-3]
+}
+function maxThree(arr) {
+    if(arr.length <3) return false
+    if(arr.length === 3) {
+        return arr[0]*arr[1]*arr[2]
+    }
+    let len = arr.length;
+    // 升序排序
+    arr.sort((a, b) => a - b);
+    // console.log(arr);
+    return arr[len-1]*arr[len-2]*arr[len-3]
+}
+maxThree([5,2,3,1])
+
+// 找出数组中三数之和为 target
