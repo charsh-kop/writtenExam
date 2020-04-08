@@ -319,4 +319,369 @@ function maxThree(arr) {
 }
 maxThree([5,2,3,1])
 
-// 找出数组中三数之和为 target
+/**
+ * 给定一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = target
+ * 找出所有满足条件且不重复的三元组。
+*/
+function threeSum(nums, target=0) {
+    if(!nums || (nums && nums.length < 3)) return []
+    let res = [], len = nums.length;
+    // 升序排序
+    nums.sort((a,b) => a - b);
+    for(let i=0; i<len; i++) {
+        if(nums[i] > target) break
+        // 去重
+        if(i>0 && nums[i] === nums[i-1]) continue
+        let left = i+1, right = len - 1;
+        while(left < right) {
+            const sum = nums[i] + nums[left] + nums[right];
+            if(sum === target) {
+                res.push([nums[i], nums[left], nums[right]]);
+                while (left<right && nums[left] == nums[left+1]) left++; // left指针与它下一位对比，如果相同，去重
+                while (left<right && nums[right] == nums[right-1]) right--; // right指针与它前一位对比，如果相同，去重
+                left++;
+                right--;
+            } else if(sum < target) {
+                left++
+            } else {
+                right--
+            }
+        }
+    }
+    return res
+}
+threeSum([6,0,-1,1,3,5,2], 6)
+
+/**
+ * 最长回文
+ * 给定一个字符串 s，找到 s 中最长的回文子串。你可以假设 s 的最大长度为 1000
+ * 输入： abac  输出： aba
+ */
+// 方法一： 暴力循环法  会超时。。。
+var longestPalindrome = function(s) {
+    if(!s) {
+        return ''
+    }
+    let maxlen = 0, len = s.length, res = '';
+    for(let i=0; i<len; i++) {
+        for(let j=i+1; j<=len; j++) {
+            let tempStr = s.substring(i, j);
+            // 判断是否是回文
+            let reverseStr = tempStr.split('').reverse().join('');
+            if((tempStr === reverseStr) && tempStr.length > maxlen) {
+                res = tempStr;
+                maxlen = tempStr.length;
+            }
+        }
+    }
+    return res
+};
+// 方法二： 动态规划
+var longestPalindrome = function(s) {
+    if(!s) {
+        return ''
+    }
+    let len = s.length, 
+        res = '',
+        s_reverse = s.split('').reverse().join('');
+    // 创建二维数组
+    let arr = Arrat.from(new Array(len), () => new Array(len).fill(0))
+    for(let i=0; i<len; i++) {
+        for(let j=0; j<len; j++) {
+            if(s[i] === s_reverse[j]) {
+                // 
+            }
+        }
+    }
+    return res
+};
+
+// 找到字符串中不重复的最大子字符串
+var lengthOfLongestSubstring = function(s) {
+    let str = '',
+        maxlen = 0,
+        currlen = 0;
+    for(let n of s) {
+        if(str.indexOf(n) === -1) {
+            str += n;
+            currlen++;
+            maxlen = Math.max(maxlen, currlen)
+        } else {
+            str += n;
+            str = str.slice(str.indexOf(n)+1);
+            currlen = str.length;
+        }
+    }
+    return maxlen
+}
+
+// 红绿灯： 循环 间隔2秒改变红绿灯颜色
+function sleep(duration) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, duration)
+    })
+}
+
+async function changeColor(duration, color) {
+    console.log(color);
+    // document.getElementById('circle').style.color = color;
+    await sleep(duration)
+}
+
+async function main() {
+    while(true) {
+        await changeColor(2000, 'green')
+        await changeColor(2000, 'yellow')
+        await changeColor(2000, 'red')
+    }
+}
+main()
+
+// ====================================================== 二叉树 start =============================================================
+/**
+ * 输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字
+ * 前序： 1 2 4 5 3 ； 中序： 4 2 5 1 3
+ */
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+var buildTree = function(preorder, inorder) {
+    if(!preorder.length|| !inorder.length) return null
+    // 前序第一个节点为根节点
+    let root = preorder[0];
+    let node = new TreeNode(root);
+    // 获取root在中序中的位置，分割左右子树
+    let idx = inorder.indexOf(root);
+
+    // 递归构建树
+    node.left = buildTree(preorder.slice(1, idx+1), inorder.slice(0, idx))
+    node.right = buildTree(preorder.slice(idx+1), inorder.slice(idx+1))
+    return node
+}
+
+/**
+ * 二叉树的层序遍历：给你一个二叉树，请你返回其按 层序遍历 得到的节点值
+ * 输入 [1,null,2,3]  输出 [1,3,2]
+ */
+var levelOrder = function(root) {
+    if(!root) return []
+    let queue = [root], // 队列，用于存放节点，先进先出
+        res = [], // 初始化结果数组
+        level = 0; // 初始化层数：第 0 层
+    while(queue.length) {
+        res[level] = [];
+        let levelNum = queue.length; // 当前层节点数
+        while(levelNum--) {
+            // 将当前层的值放进结果数组
+            let node = queue.shift();
+            res[level].push(node.val);
+            // 如果节点存在左右子节点，则放进队列
+            if(node.left) queue.push(node.left);
+            if(node.right) queue.push(node.right);
+        }
+        // 遍历下一层
+        level++
+    }
+    return res
+};
+
+/**
+ * 二叉树的中序遍历
+ */
+// 递归
+var inorderTraversal = function(root) {
+    if(root) {
+        return [...inorderTraversal(root.left), root.val, ...inorderTraversal(root.right)]
+    } else {
+        return []
+    }
+};
+// 迭代
+/**
+ * 当前节点存在左子节点，当前节点入栈，再跳到左子节点
+ * 当前节点不存在左子节点: 
+ *      不存在右子节点，保存当前节点，当前值指向前一个值，且左子节点置为null
+ *      存在右节点，保存当前节点，再跳到右节点
+ */
+var inorderTraversal = function(root) {
+    let res = [], stack = [];
+    while(root || stack.length) {
+        if(root.left) { // 存在左子节点
+            stack.push(root);
+            root = root.left;
+        } else { // 不存在左子节点
+            res.push(root.val);
+            if(root.right) { // 存在右子节点
+                root = root.right;
+            } else { // 不存在右子节点
+                // root 指向前一个值，同时把root（即前一个值得左子节点）置为null
+                root = stack.pop();
+                if(root) root.left = null;
+            }
+        }
+    }
+    return res
+};
+
+/**
+ * 二叉树的前序遍历
+ */
+// 递归
+var preorderTraversal = function(root) {
+    if(root) {
+        return [root.val, ...preorderTraversal(root.left), ...preorderTraversal(root.right)]
+    } else {
+        return []
+    }
+};
+// 迭代
+/**
+ * 利用栈，根节点先保存，然后右节点入栈，再左节点入栈
+ * 迭代保存出栈节点
+ */
+var preorderTraversal = function(root) {
+    let res = [];
+    if(!root) return []
+    // 模拟栈
+    let stack = [root];
+    while(stack.length > 0) {
+        let node = stack.pop()
+        // 遇到根节点，保存至结果数组
+        res.push(node.val);
+        // 栈先进后出，所以先入右节点
+        if(node.right) stack.push(node.right)
+        if(node.left) stack.push(node.left)
+    }
+    return res
+};
+
+/**
+ * 二叉树的后序遍历
+ */
+// 递归
+var postorderTraversal = function(root) {
+    if(root) {
+        return [...postorderTraversal(root.left), ...postorderTraversal(root.right), root.val]
+    } else {
+        return []
+    }
+};
+// 迭代
+// 前序遍历 倒置版（unshift）
+var postorderTraversal = function(root) {
+    let res = [];
+    if(!root) return []
+    // 模拟栈
+    let stack = [root];
+    while(stack.length > 0) {
+        let node = stack.pop()
+        // 栈先进后出，所以先入右节点
+        if(node.left) stack.push(node.left)
+        if(node.right) stack.push(node.right)
+        res.unshift(node.val);
+    }
+    return res
+};
+
+// ====================================================== 二叉树 end =============================================================
+
+/**
+ * 8*8二维数组，当横向有两个1，或者纵向有两个1时，输出true，否则false
+ */
+var func = function(arr) {
+    let num1 = 0, num2 = 0;
+    for(let i=0; i <8; i++) {
+        for(let j=0; j<8; j++) {
+            if(arr[i][j] === 1) {
+                num1 ++;
+            }
+            if(arr[j][i] === 1) {
+                num2 ++;
+            }
+            if(num1 >= 2) return true
+            if(num2 >= 2) return true
+        }
+    }
+    return false
+}
+let array = [
+    [1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0]
+]
+func(array);
+
+/**
+ * 数组全排列，数组中元素不重复
+ * 递归 + 位置交换
+ */
+var permute = function(nums) {
+    let res = [];
+    perm(nums, 0, nums.length-1, res);
+    return res
+}
+// 从数组的第p个数到第q个数，递归进行全排列
+function perm(arr, p, q , res) {
+    if(p === q) {
+        // 排列完成
+        res.push([...arr])
+    }
+    for(let i=p; i<=q; i++) {
+        // 将 i 交换到 p，进行全排列
+        swap(arr, i, p);
+        // 如果放到第0位，就需要对第1位到第最后一位进行全排列
+        // 所以从 p+1 到 q 进行递归
+        perm(arr, p+1, q, res)
+        // 排列完成，将 i 与 p 重置回来，避免重复排列
+        swap(arr, i, p)
+    }
+};
+function swap(arr, i, j) {
+    let temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+};
+/**
+ * 数组全排列，数组中元素有重复
+ * 递归 + 位置交换 + map去重
+ */
+var permuteUnique  = function(nums) {
+    let res = [];
+    perm(nums, 0, nums.length-1, res);
+    return res
+}
+// 从数组的第p个数到第q个数，递归进行全排列
+function perm(arr, p, q , res) {
+    if(p === q) {
+        // 排列完成
+        res.push([...arr])
+    }
+    // 去重
+    let map = new Map();
+    for(let i=p; i<=q; i++) {
+        if(!map.has(arr[i])) {
+            map.set(arr[i], true);
+            // 将 i 交换到 p，进行全排列
+            swap(arr, i, p);
+            // 如果放到第0位，就需要对第1位到第最后一位进行全排列
+            // 所以从 p+1 到 q 进行递归
+            perm(arr, p+1, q, res)
+            // 排列完成，将 i 与 p 重置回来，避免重复排列
+            swap(arr, i, p)
+        }
+    }
+};
+function swap(arr, i, j) {
+    let temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+};
