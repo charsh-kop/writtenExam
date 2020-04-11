@@ -587,6 +587,47 @@ var postorderTraversal = function(root) {
     return res
 };
 
+/**
+ * 判断树是否是对称二叉树
+ * 递归 + 双指针
+ */
+// 如果是对称二叉树，则按照左、中、右顺序把节点存入数组中，得到的数组是对称的
+// 比如： 二叉树 [1,2,2,3,4,4,3]，按上述说法执行后得到数组 [3,2,4,1,4,2,3]
+var isSymmetric = function (root) {
+    if(!root) return true
+    let nums = [];
+    getArray(nums, root , 1);
+    let i = 0, j = nums.length -1;
+    // 设置左右指针 判断数组是否为对称数组
+    while(i < j) {
+        if(nums[i] !== nums[j]) {
+            return false
+        }
+        i++;
+        j--;
+    }
+    return true
+}
+/**
+ * 递归得到对称数组
+ * @param n: 节点
+ * @param k: 层数，用于区分null节点
+ */
+function getArray(nums, n, k) {
+    // 处理左节点
+    if(n.left) {
+        // 递归下一层
+        getArray(nums, n.left, k+1)
+    }
+    // 当前节点存进数组
+    nums.push(`${n.val}-${k}`);
+    // 处理右节点
+    if(n.right) {
+        // 递归下一层
+        getArray(nums, n.right, k+1)
+    }
+}
+
 // ====================================================== 二叉树 end =============================================================
 
 /**
@@ -685,3 +726,34 @@ function swap(arr, i, j) {
     arr[i] = arr[j];
     arr[j] = temp;
 };
+
+// 原生 js 实现 ajax
+function AJAX(options, fn) {
+    options = options || {};
+    options.type = options.type ? options.type : 'GET'; // 默认 GET
+    options.dataType = options.dataType ? options.dataType : 'json'; 
+    options.data = options.data ? options.data : {};
+
+    let xhr = new XMLHttpRequest();
+
+    if(options.type === 'GET') {
+        xhr.open("GET", options.url+"?"+params, true);
+        xhr.send(null);
+    }
+    if(options.type === 'POST') {
+        xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xhr.send(options.data);
+    }
+
+    // 监听服务端响应
+    xhr.onreadystatechange=function(){
+        // 请求成功返回
+        if(xhr.readyState==4){
+            let status = xhr.status;
+            if(status === 200 || status === 304){
+                // 成功后执行回调
+              fn.call(this, xhr)
+            }
+        }
+    }
+}
