@@ -117,6 +117,45 @@ var reverseList = function(head) {
     }
     return tHead.next;
 };
+// 当前节点的next 指向上一个节点
+var reverseList = function(head) {
+    let prev = null;
+    let curr = head;
+    while(curr != null){
+        let next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+    return prev;
+};
+
+/**
+ * 给你一个链表，每 k 个节点一组进行翻转，请你返回翻转后的链表。
+ * k 是一个正整数，它的值小于或等于链表的长度。
+ * 如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
+ */
+var reverseKGroup = function(head, k) {
+    let prev = null,
+        curr = head,
+        p = head;
+    // 查找k个
+    for(let i=0; i<k; i++) {
+        if(p == null) return head
+        p = p.next;
+    }
+    // 对着k个进行反转
+    for(let j=0; j<k; j++) {
+        let next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+    // 反转后，递归  head 已被反转到当前组中最后一个节点，所以应该指向下一个递归的起点
+    // 此时 curr就是下一组的第一个节点
+    head.next = reverseKGroup(curr, k)
+    return prev
+};
 
 /**
  * 将两个升序链表合并为一个新的升序链表并返回。新链表是通过拼接给定的两个链表的所有节点组成
@@ -135,6 +174,7 @@ var mergeTwoLists = function(l1, l2) {
         return l2;
     }
 }
+
 // 链表 end =========================================================================
 
 // 求数组中任意两元素的最大差值 （买卖股票的最佳时机）
@@ -756,4 +796,159 @@ function AJAX(options, fn) {
             }
         }
     }
+}
+
+/**
+ * 给出两个 非空 的链表用来表示两个非负的整数。其中，它们各自的位数是按照 逆序 的方式存储的，并且它们的每个节点只能存储 一位 数字。
+ * 如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。
+ * 输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
+ * 输出：7 -> 0 -> 8
+ * 原因：342 + 465 = 807
+ */
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val) {
+ *     this.val = val;
+ *     this.next = null;
+ * }
+ */
+var addTwoNumbers = function(l1, l2) {
+    // 新建一个链表
+    let node = new ListNode('head');
+    // sum为总和， 进n位
+    let temp = node, sum = 0, n = 0;
+    while(l1 || l2) {
+        let n1 = l1 ? l1.val : 0;
+        let n2 = l2 ? l2.val : 0;
+        sum = n1 + n2 + n;
+        // sum%10，如果大于10，指向进位后的余数
+        temp.next = new ListNode(sum%10);
+        temp = temp.next;
+        // 进n位
+        n = parseInt(sum / 10);
+        if(l1) l1 = l1.next;
+        if(l2) l2 = l2.next
+    }
+    // 最后还有进位
+    if(n > 0) temp.next = new ListNode(n);
+    return node.next
+};
+
+/**
+ * 实现一个 LRU
+ */
+/**
+ * @param {number} capacity
+ */
+var LRUCache = function(capacity) {
+    // 最大容量
+    this.capacity = capacity;
+    // 用 Map对象 来管理cache  有序键值对
+    this.cache = new Map();
+};
+/** 
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.get = function(key) {
+    let cacheMap = this.cache;
+    if(cacheMap.has(key)) {
+        // 执行get， 需要更新 key值 顺序
+        let value = cacheMap.get(key);
+        cacheMap.delete(key);
+        cacheMap.set(key, value);
+        return value
+    } else {
+        return -1
+    }
+};
+/** 
+ * @param {number} key 
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function(key, value) {
+    let cacheMap = this.cache;
+    // 不存在， 需要插入
+    if(!cacheMap.has(key)) {
+        // 判断容量是否达到上限
+        if(cacheMap.size >= this.capacity) {
+            // 达到上限，需删除
+            // Map.keys().next() 按顺序输出key
+            cacheMap.delete(cacheMap.keys().next().value);
+        }
+    } else {
+        // 存在，需要更新
+        cacheMap.delete(key);
+    }
+    cacheMap.set(key, value);
+};
+
+/**
+ * 查找两个有序数组的中位数
+ */
+var findMedianSortedArrays = function(nums1, nums2) {
+    let arr = [...nums1, ...nums2];
+    // 排序
+    arr.sort((a, b) => a - b);
+    let len = arr.length;
+    return len%2 > 0 ? arr[(len-1) / 2] : (arr[len/2] + arr[(len/2) - 1]) / 2
+};
+
+// js实现二分查找
+function binarySearch(arr, value) {
+    let max = arr.length-1,
+        min = 0;
+    while(min < max) {
+        let mid = Math.floor((max - min)/2);
+        if(value === arr[mid]) {
+            return arr[mid]
+        } else if(value < arr[mid]) {
+            max = mid-1;
+        } else if(value > arr[mid]) {
+            min = mid+1;
+        }
+    }
+    return -1
+}
+
+/**
+ * 字典序第 k 小的数字
+ * 给定整数 n 和 k，找到 1 到 n 中字典序第 k 小的数字。
+ * https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/
+ */
+var findKthNumber = function(n, k) {
+    let p = 1, // 指针，确定当前位置，当p === k时，即找到k
+        prefix = 1; // 初始前缀
+    while(p < k) {
+        let count = getCount(prefix, n);
+        // 判断第 k 个数 是否在当前前缀下
+        if(p + count > k) { // 在当前前缀下
+            // 此时需要往子前缀中查找
+            prefix *= 10;
+            p++; // 指针后移
+        } else { // 不在当前前缀下
+            // 前缀后移
+            prefix ++
+            // 指针需要指向下一前缀的起点
+            p += count;
+        }
+    }
+    return prefix
+}
+// 获取n个数中， 当前前缀prefix下的所有子节点总数
+// 总数count = 下一个前缀起点 next - 当前前缀起点 prefix
+// 比如 prefix 为 10， 那下一个前缀起点就为20， count 即为 1 10 11 12 13 14 15 16 17 18 19 总10个数
+function getCount(prefix, n) {
+    let curr = prefix,
+        next = prefix + 1,
+        count = 0;
+    // 不能超过n
+    // Math.min(next, n+1) ： next会大于n，所以应取next和n中较小值；n+1是为了将n算进去总数中
+    while(curr <= n) {
+        count += Math.min(next, n+1) - curr;
+        curr *= 10;
+        next *= 10;
+    }
+    return count
 }
