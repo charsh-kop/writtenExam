@@ -952,3 +952,162 @@ function getCount(prefix, n) {
     }
     return count
 }
+
+
+/**
+ * 字节跳动 笔试题
+ */
+// 1 箭头函数
+var a = x => x;
+// 等同于
+var a = function (x) {
+    return x;
+};
+
+var b = x => {x;};
+var c = x => ({x});
+// 如果箭头函数返回是一个对象，就需要在对象外部加一层 （），否则就会报undefined
+console.log(a(1)); // 1
+console.log(b(1)); // undefined
+console.log(c(1)); // {x: 1}
+
+// 2  const
+const a = {b: 1};
+a.b = 2;
+console.log(a.b) // 2
+
+// 3  正确输出for 循环中的 setTimeout
+// 立即执行 / let：输出结果为 0 1 2，但是也是同时输出的
+for (var i = 0; i < 3; i++) {
+    (function(e) {
+        setTimeout(() => {
+            console.log(e);
+        }, 1000);
+    })(i)
+}
+for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+        console.log(i);
+    }, 1000);
+}
+// 让间隔时间 *i
+for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+        console.log(i);
+    }, 1000*i);
+}
+// async  await
+const sleep = time => new Promise( resolve => setTimeout(resolve, time));
+(async function(){
+   for(let i=0; i<3; i++){
+       await sleep(1000);
+       console.log(i);
+   }
+})()
+
+// 4  原型
+window.name = 'ByteDance';
+
+function Foo () {   
+    // 实例成员，实例化后的实例可以访问
+    this.name = 'bar';
+    this.a = 'aa';
+    // 定义在构造函数内的方法，可以访问，但是不共享
+    this.func1 = function() {
+        console.log('1')
+    }
+}
+// 静态成员，实例化后的实例不可访问
+Foo.static = 'a';
+console.log(Foo.name) // Foo 构造函数无法直接访问实例成员，.name 会返回构造函数名称
+console.log(Foo.a) // undefined  构造函数无法直接访问实例成员 .a 会返回undefined
+
+// 定义在原型上的方法，可以访问，而且共享
+Foo.prototype.getName = function(){
+  console.log(this);
+  return this.name + 1;
+}
+
+let foo = new Foo();
+console.log(foo); // Foo {name: bar; func1: function(){}}
+let getName = foo.getName;
+console.log(getName) // undefined
+
+console.log(getName()); // window ByteDance1: 直接调用，this指向window  this.name 就是 window.name
+console.log(foo.getName()); // foo bar1:  上下文对象调用，this指向上下文对象foo， foo是Foo的实例，所以可以访问实例属性this.name = 'bar'
+console.log(getName.call(Foo)); // foo Foo1: 使用call指定this： this 指向 Foo， 因为Foo.name返回Foo
+
+
+function Foo() {
+    // 全局变量， 会被提升到全局作用域
+    aa = '0';
+    // 私有属性
+    var a = '1';
+    // 实例属性
+    this.b = '2';
+    // 私有方法
+    function getA() {
+        return a
+    }
+    // 实例方法
+    this.getB = function() {
+        console.log(this.b)
+    }
+}
+// 静态属性
+Foo.c = '3';
+// 静态方法
+Foo.getC = function() { console.log('3') }
+// 实例方法/公共方法
+Foo.prototype.getD = function() {
+    console.log('4')
+}
+
+
+// 5
+/**
+ * 字符串删除相邻重复字母
+ * 输入："abbaca"  输出："ca"
+ */
+var removeDuplicates = function(S) {
+    // 利用栈 先进后出 相同则最后一个元素出栈
+    let res = [];
+    for(let i=0; i<S.length; i++) {
+        let tmp = res[res.length-1] ? res[res.length-1] : '';
+        if(tmp === S[i]) {
+            res.pop()
+        } else {
+            res.push(S[i])
+        }
+    }
+    return res.join('')
+};
+
+/**
+ * 构造函数，原型，作用域，运算优先级 考察
+ */
+function Foo() {
+    getName = function () { console.log(1); };
+    return this;
+}
+Foo.getName = function () { console.log(2);};
+Foo.prototype.getName = function () { console.log(3);};
+var getName = function () { console.log(4);};
+function getName() { console.log(5);}
+
+//答案：
+// 访问Foo的静态方法，输出2
+Foo.getName();// 2
+// 函数声明提升，5会先执行，然后函数表达式再执行，最终输出4
+getName(); // 4
+// Foo() 函数直接调用，this指向window，所以变成 window.getName()，Foo中有对getName进行再次赋值，因为无var，这个赋值会提升到全局，最终输出1
+Foo().getName();// 1
+// 上一步getName被修改为 1
+getName();// 1
+// 运算符优先级，new 无参数列表 优先级 低于 . 运算； new 带参数列表 优先级 和 . 运算相等
+// 变化成 new (Foo.getName)()，输出 2
+new Foo.getName();// 2
+// 变化成 ((new Foo()).getName)()， 实例化再访问getName，即访问实例方法getName，输出 3
+new Foo().getName();// 3
+// new ((new Foo()).getName)()，访问实例化后的getName，将其当做构造函数再实例化，再执行，输出 3
+new new Foo().getName();// 3
