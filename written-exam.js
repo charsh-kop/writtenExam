@@ -668,6 +668,36 @@ function getArray(nums, n, k) {
     }
 }
 
+/**
+ * 判断是否为二叉搜索树
+ * 左节点 < 根节点 < 右节点
+ */
+// 思路一： 先转换成数组，判断数组是否升序
+var isValidBST = function(root) {
+    // 转化为 数组
+    let arr = getArray(root);
+    // 判断左边是否大于右边
+    for(let i=0; i<arr.length; i++) {
+        if(arr[i+1] <= arr[i]) return false
+    }
+    return true
+};
+function getArray(root) {
+    if(root) {
+        return [...getArray(root.left), root.val, ...getArray(root.right)]
+    } else {
+        return []
+    }
+}
+
+// 思路二： 根节点一定是左子树的上限，也一定是右子树的下限
+var isValidBST = function(root, pre = null, next = null) {
+    if(!root) return true
+    if(pre && pre.val >= root.val) return false
+    if(next && next.val <= root.val) return false
+    return isValidBST(root.left, pre, root) && isValidBST(root.right, root, next)
+};
+
 // ====================================================== 二叉树 end =============================================================
 
 /**
@@ -1111,3 +1141,146 @@ new Foo.getName();// 2
 new Foo().getName();// 3
 // new ((new Foo()).getName)()，访问实例化后的getName，将其当做构造函数再实例化，再执行，输出 3
 new new Foo().getName();// 3
+
+
+/**
+ * 实现一个简单的任务队列
+ * 1. 调用 task 方法往队列里面添加任务
+ * 2. 调用 start 方法依次执行任务，执行完毕清空队列
+ * 3. 支持链式调用
+new Queue()
+  .task(1000, () => {
+    console.log(1);
+  })
+  .task(2000, () => {
+    console.log(2);
+  })
+  .task(1000, () => {
+    console.log(3);
+  })
+  .start();
+ */
+function Queue() {
+    this.queue = [];
+    this.duration = 0;
+}
+Queue.prototype.task = function(duration, executor) {
+    this.queue.push({
+        duration: duration,
+        executor: executor
+    });
+    return this
+}
+Queue.prototype.start = function() {
+    for(let task of this.queue) {
+        this.duration += task.duration;
+        setTimeout(task.executor, this.duration)
+    }
+    this.queue = [];
+    this.duration = 0;
+}
+let queue = new Queue();
+queue.task(1000, () => {
+    console.log(1);
+})
+.task(2000, () => {
+    console.log(2);
+})
+.task(1000, () => {
+    console.log(3);
+})
+queue.start();
+
+// 原生实现 instanceOf
+function myInstanceOf(a, b) {
+    let proto = a.__proto__;
+    let proto_type = b.prototype;
+    while(true) {
+        if(proto === null) {
+            return false
+        }
+        if(proto === proto_type) {
+            return true
+        }
+        proto = proto._proto_
+    }
+}
+var obj = {};
+myInstanceOf(obj, Object)
+
+
+/**
+ * 柯里化
+ * 实现一个函数，输出结果如下：
+ * multiplication(4)(5).valueOf() = 20;
+ * multiplication(4, 5).valueOf() = 20;
+ * multiplication(3)(4, 5).valueOf() = 60;
+*/
+
+function multiplication(...rest) {
+    // 定义一个数组args，表示已存储的所有参数
+    const args = [...rest];
+    // 声明一个私有函数，用于收集所有参数
+    const fn = function (...nextRest) {
+        const fn_args = [...nextRest];
+        return multiplication.apply(null, [...args, ...fn_args]);
+    };
+    // 调用 valueOf 时，执行乘法运算
+    fn.valueOf = function () {
+        return args.reduce((a,b) => a*b)
+    };
+    return fn;
+}
+multiplication(1)(2)(3,4).valueOf();
+
+
+/** 完成一个转换函数，将数字转成对应的大写字母，满足下面的对应关系
+ * 1 => A；2 => B；3 => C
+ * ...
+ * 26 => Z；27 => AA；28 => AB；29 => AC
+ * ...
+ * 52 => AZ；53 => BA；54 => BB
+ * ...
+*/
+function convert(num) {
+
+}
+
+/**
+ * 实现千分位
+ */
+// 正则： 正向预查
+var convert = function(num) {
+    var reg=/\d{1,3}(?=(\d{3})+$)/g;   
+    return (num + '').replace(reg, '$&,');  
+}
+// reduce实现
+var convert = function(num) {
+    var str = num+'';
+    return str.split("").reverse().reduce((prev, next, index) => {
+        return ((index % 3) ? next : (next + ',')) + prev;
+    })
+}
+
+/**
+ * 写出一个数组展开函数, 如输入：[1,[2,[3,4,2],2],5,[6]],  则输出：[1,2,3,4,2,2,5,6] 
+ */
+// 因为和深度无关，所以说最简单可以这样
+function flatten(arr){
+    var res = arr.join();
+    res = res.map( ele => +ele)
+    return res;
+}
+flatten([1,[2,[3,4,2],2],5,[6]])
+// 递归
+function flatten(arr){
+    var array = [];
+    arr.forEach(ele => {
+        if(Array.isArray(ele)){
+            array.push(...flatten(ele));
+        } else {
+            array.push(ele);
+        }
+    })
+    return array;
+}
