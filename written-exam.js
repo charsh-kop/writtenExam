@@ -212,31 +212,24 @@ var maxSubArray = function(nums) {
     }
     return maxsub
 };
-
 /**
- * 给定一个二叉树和一个目标和，判断该树中是否存在根节点到叶子节点的路径，这条路径上所有节点值相加等于目标和
+ * 最大子数组乘积
  */
-function TreeNode(val) {
-    this.val = val;
-    this.left = this.right = null;
-}
-/**
- * @param {TreeNode} root
- * @param {number} sum
- * @return {boolean}
- */
-var hasPathSum = function(root, sum) {
-    if(root == null) {
-        return false
+var maxProduct = function(nums) {
+    let max = Number.MIN_SAFE_INTEGER,
+        imax = 1,
+        imin = 1;
+    for(let i=0;i<nums.length;i++) {
+        if(nums[i] < 0) {
+            let tmp = imax;
+            imax = imin;
+            imin = tmp
+        }
+        imax = Math.max(nums[i], nums[i]*imax);
+        imin = Math.max(nums[i], nums[i]*imin);
+        max = Math.max(max, imax)
     }
-    // root 为 叶子节点，判断是否相等
-    if(root.left == null && root.right == null) {
-        return root.val === sum
-    }
-    // 非叶子节点，继续往下寻找，同时sum动态减去当前节点值
-    sum = sum - root.val;
-    // 左右两条路径，有一条满足即可
-    return hasPathSum(root.left, sum) || hasPathSum(root.right, sum)
+    return max
 };
 
 /**
@@ -479,6 +472,31 @@ main()
 
 // ====================================================== 二叉树 start =============================================================
 /**
+ * 给定一个二叉树和一个目标和，判断该树中是否存在根节点到叶子节点的路径，这条路径上所有节点值相加等于目标和
+ */
+function TreeNode(val) {
+    this.val = val;
+    this.left = this.right = null;
+}
+/**
+ * @param {TreeNode} root
+ * @param {number} sum
+ * @return {boolean}
+ */
+var hasPathSum = function(root, sum) {
+    if(root == null) {
+        return false
+    }
+    // root 为 叶子节点，判断是否相等
+    if(root.left == null && root.right == null) {
+        return root.val === sum
+    }
+    // 非叶子节点，继续往下寻找，同时sum动态减去当前节点值
+    sum = sum - root.val;
+    // 左右两条路径，有一条满足即可
+    return hasPathSum(root.left, sum) || hasPathSum(root.right, sum)
+};
+/**
  * 输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字
  * 前序： 1 2 4 5 3 ； 中序： 4 2 5 1 3
  */
@@ -703,28 +721,31 @@ var isValidBST = function(root, pre = null, next = null) {
 /**
  * 8*8二维数组，当横向有两个1，或者纵向有两个1时，输出true，否则false
  */
-var func = function(arr) {
-    let num1 = 0, num2 = 0;
-    for(let i=0; i <8; i++) {
-        for(let j=0; j<8; j++) {
+const func = (arr) => {
+    let len = arr.length;
+    // 遍历二维数组
+    for(let i=0; i<len; i++) {
+        let num1 = 0;  // 记录横向出现1的个数
+        for(let j=0; j<len; j++) {
+            let num2 = 0; // 记录纵向出现1的个数
+            // arr[i][j] 表示横向
             if(arr[i][j] === 1) {
-                num1 ++;
+                num1++;
             }
+            // arr[j][i] 横向坐标反转，表示纵向
             if(arr[j][i] === 1) {
-                num2 ++;
+                num2++;
             }
-            if(num1 >= 2) return true
-            if(num2 >= 2) return true
+            if(num1 > 1) return true
+            if(num2 > 1) return true
         }
     }
     return false
 }
 let array = [
     [1,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
+    [1,0,0,1,0,0,0,0],
+    [0,0,0,0,0,1,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0]
@@ -834,13 +855,6 @@ function AJAX(options, fn) {
  * 输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
  * 输出：7 -> 0 -> 8
  * 原因：342 + 465 = 807
- */
-/**
- * Definition for singly-linked list.
- * function ListNode(val) {
- *     this.val = val;
- *     this.next = null;
- * }
  */
 var addTwoNumbers = function(l1, l2) {
     // 新建一个链表
@@ -1284,3 +1298,116 @@ function flatten(arr){
     })
     return array;
 }
+
+/**
+ * 原生实现 call  apply  bind
+ */
+Function.prototype.myCall = (context, ...rest) => {
+    if(typeof context === 'object') {
+        context = context || window
+    } else {
+        context = null
+    }
+    context.fn = this;
+    const result = context.fn([...rest])
+    delete context.fn
+    return result
+}
+Function.prototype.myApply = (context, ...rest) => {
+    if(typeof context === 'object') {
+        context = context || window
+    } else {
+        context = null
+    }
+    context.fn = this;
+    const result = [...rest].length > 0 ? context.fn([...rest]) : context.fn()
+    delete context.fn
+    return result
+}
+Function.prototype.myBind = (context, ...rest) => {
+    if(typeof context === 'object') {
+        context = context || window
+    } else {
+        context = null
+    }
+    if (typeof this !== 'function') {
+        throw new TypeError('Error')
+    }
+    const _this = this;
+    return function fn() {
+        return _this.apply(context, [...rest])
+    }
+}
+
+
+// =================================================================================
+// todo: 实现一个深度比较函数，需要支持 对象、数组、数字、字符串、布尔值、null
+function compare(v1, v2) {
+    // 类型为基本类型时,如果相同,则返回true
+    if (v1 === v2) return true
+    if (isObject(v1) && isObject(v2) && Object.keys(v1).length === Object.keys(v2).length) {
+        // 类型为对象并且元素个数相同
+        // 遍历所有对象中所有属性,判断元素是否相同
+        for (const key in v1) {
+            if (v1.hasOwnProperty(key)) {
+                if (!compare(v1[key], v2[key])) {
+                    // 对象中具有不相同属性 返回false
+                    return false
+                }
+            }
+        }
+    } else if (isArray(v1) && isArray(v1) && v1.length === v2.length) {
+        // 类型为数组并且数组长度相同
+        for (let i = 0, length = v1.length; i < length; i++) {
+            if (!compare(v1[i], v2[i])) {
+                // 如果数组元素中具有不相同元素,返回false
+                return false
+            }
+        }
+    } else {
+        // 其它类型,均返回false
+        return false
+    }
+    // 走到这里,说明数组或者对象中所有元素都相同,返回true
+    return true
+}
+// 判断此类型是否是对象
+function isObject(obj) {
+    return Object.prototype.toString.call(obj) === '[object Object]'
+}
+// 判断此对象是否是数组
+function isArray(arr) {
+    return Object.prototype.toString.call(arr) === '[object Array]'
+}
+
+const result = compare(testData1, testData2);
+console.log('result:', result);
+
+
+/**
+ * 大数相乘
+ */
+var multiply = function(num1, num2) {
+    if (num1 == "0" || num2 == "0") return "0";
+    let l1 = num1.length, l2 = num2.length;
+    // 数组填充乘积结果
+    let res = new Array(l1 + l2 - 1).fill(0);
+    for (let i = 0; i < l2; i++) {
+        for (let j = 0; j < l1; j++) {
+            // 竖式相乘 
+            res[i + j] += +num2[i] * +num1[j];
+        }
+    }
+    let len = res.length;
+    let str = "", // 结果
+        num = 0; // 进位加结果
+    while (len--) {
+        num += res[len];
+        str = (num % 10) + str;
+        num = (num / 10) | 0;
+    }
+    // 有进位，补上
+    return num > 0 ? num + str : str;
+  };
+
+multiply('11111111111111111111','222222222222222')
